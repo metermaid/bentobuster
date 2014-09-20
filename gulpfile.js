@@ -6,7 +6,8 @@ var gulp = require('gulp')
   , minifycss = require('gulp-minify-css')
   , minifyhtml = require('gulp-minify-html')
   , processhtml = require('gulp-processhtml')
-  , jshint = require('gulp-jshint')
+  , tslint = require('gulp-tslint')
+  , type = require('gulp-type')
   , uglify = require('gulp-uglify')
   , connect = require('gulp-connect')
   , paths;
@@ -17,7 +18,7 @@ paths = {
   libs:   [
     'src/bower_components/phaser-official/build/phaser.min.js'
   ],
-  js:     ['src/js/**/*.js'],
+  app:     ['src/ts/**/*.ts'],
   dist:   './dist/'
 };
 
@@ -34,10 +35,14 @@ gulp.task('copy', ['clean'], function () {
     .on('error', gutil.log);
 });
 
-gulp.task('uglify', ['clean','lint'], function () {
-  var srcs = [paths.libs[0], paths.js[0]];
+gulp.task('compile', ['clean','lint'], function () {
+  var srcs = [paths.libs[0], paths.app[0]];
 
   gulp.src(srcs)
+    .pipe(type({
+      declarationFiles: true,
+      noExternalResolve: true
+    })).js
     .pipe(concat('main.min.js'))
     .pipe(gulp.dest(paths.dist))
     .pipe(uglify({outSourceMaps: false}))
@@ -70,10 +75,9 @@ gulp.task('minifyhtml', ['clean'], function() {
 });
 
 gulp.task('lint', function() {
-  gulp.src(paths.js)
-    .pipe(jshint('.jshintrc'))
-    .pipe(jshint.reporter('default'))
-    .on('error', gutil.log);
+  gulp.src(paths.app)
+    .pipe(tslint())
+    .pipe(tslint.report('prose', {emitError: true}));
 });
 
 gulp.task('html', function(){
@@ -92,9 +96,9 @@ gulp.task('connect', function () {
 
 gulp.task('watch', function () {
   gulp.watch(paths.js, ['lint']);
-  gulp.watch(['./src/index.html', paths.css, paths.js], ['html']);
+  gulp.watch(['./src/index.html', paths.css, paths.app], ['html']);
 });
 
 gulp.task('default', ['connect', 'watch']);
-gulp.task('build', ['copy', 'uglify', 'minifycss', 'processhtml', 'minifyhtml']);
+gulp.task('build', ['copy', 'compile', 'minifycss', 'processhtml', 'minifyhtml']);
 
