@@ -1,47 +1,29 @@
-(function() {
-  'use strict';
+/// <reference path="bower-components/phaser-official/build/phaser.d.ts"/>
 
-  function Game() {
-    this.player = null;
-  }
+/// <reference path='state/boot.ts'/>
+/// <reference path='state/preloade.ts'/>
+/// <reference path='state/menu.ts'/>
+/// <reference path='state/main.ts'/>
 
-  Game.prototype = {
+module RitaConsumesTheUniverse
+{
+  export class Game extends Phaser.Game
+  {
+    constructor()
+    {
+      super(640, 480, Phaser.AUTO, 'game-div');
 
-    create: function () {
-      var x = this.game.width / 2
-        , y = this.game.height / 2;
+      this.state.add('boot', State.Boot);
+      this.state.add('preload', State.Preload);
+      this.state.add('menu', State.Menu);
+      this.state.add('main', State.Main);
 
-      this.player = this.add.sprite(x, y, 'player');
-      this.player.anchor.setTo(0.5, 0.5);
-      this.input.onDown.add(this.onInputDown, this);
-    },
-
-    update: function () {
-      var x, y, cx, cy, dx, dy, angle, scale;
-
-      x = this.input.position.x;
-      y = this.input.position.y;
-      cx = this.world.centerX;
-      cy = this.world.centerY;
-
-      angle = Math.atan2(y - cy, x - cx) * (180 / Math.PI);
-      this.player.angle = angle;
-
-      dx = x - cx;
-      dy = y - cy;
-      scale = Math.sqrt(dx * dx + dy * dy) / 100;
-
-      this.player.scale.x = scale * 0.6;
-      this.player.scale.y = scale * 0.6;
-    },
-
-    onInputDown: function () {
-      this.game.state.start('menu');
+      this.state.start('boot');
     }
+  }
+}
 
-  };
-
-  window['universe-consumer'] = window['universe-consumer'] || {};
-  window['universe-consumer'].Game = Game;
-
-}());
+window.onload = () =>
+{
+  var game = new RitaConsumesTheUniverse.Game();
+}
