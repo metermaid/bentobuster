@@ -10,47 +10,52 @@ var gulp = require('gulp')
   , type = require('gulp-type')
   , uglify = require('gulp-uglify')
   , connect = require('gulp-connect')
-  , paths;
+  , paths,
+  runSequence = require('run-sequence'); // needed for non-dependent ordered tasks
 
 paths = {
   assets: 'src/assets/**/*',
   css:    'src/css/*.css', 
+  sources:   [
+    'src/bower_components/phaser-official/build/phaser.min.js'
+  ],
   libs:   [
     'src/bower_components/phaser-official/build/phaser.d.ts'
   ],
   app:     ['src/ts/**/*.ts'],
-  dist:   './dist/'
+  dist:   'build/'
 };
 
 gulp.task('clean', function () {
-  var stream = gulp.src(paths.dist, {read: false})
+  return gulp.src([paths.dist], {read: false})
     .pipe(clean({force: true}))
     .on('error', gutil.log);
-  return stream;
 });
 
-gulp.task('copy', ['clean'], function () {
-  gulp.src(paths.assets)
-    .pipe(gulp.dest(paths.dist + 'assets'))
+gulp.task('copy', function () {
+  return gulp.src(paths.assets)
+    .pipe(gulp.dest(paths.dist + '/assets'))
     .on('error', gutil.log);
 });
 
-gulp.task('compile', ['clean','lint'], function () {
-  var srcs = [paths.libs[0], paths.app[0]];
+gulp.task('sources', function () {
+  return gulp.src(paths.sources)
+    .pipe(uglify({outSourceMaps: false}))
+    .pipe(gulp.dest(paths.dist));
+});
 
-  gulp.src(srcs)
+gulp.task('compile', ['lint'], function () {
+  return gulp.src(paths.libs.concat(paths.app))
     .pipe(type({
       declarationFiles: true,
       noExternalResolve: true
     })).js
     .pipe(concat('main.min.js'))
-    .pipe(gulp.dest(paths.dist))
-    .pipe(uglify({outSourceMaps: false}))
     .pipe(gulp.dest(paths.dist));
 });
 
-gulp.task('minifycss', ['clean'], function () {
- gulp.src(paths.css)
+gulp.task('minifycss', function () {
+ return gulp.src(paths.css)
     .pipe(minifycss({
       keepSpecialComments: false,
       removeEmpty: true
@@ -60,45 +65,45 @@ gulp.task('minifycss', ['clean'], function () {
     .on('error', gutil.log);
 });
 
-gulp.task('processhtml', ['clean'], function() {
-  gulp.src('src/index.html')
+gulp.task('processhtml', function() {
+  return gulp.src('src/index.html')
     .pipe(processhtml('index.html'))
     .pipe(gulp.dest(paths.dist))
     .on('error', gutil.log);
 });
 
-gulp.task('minifyhtml', ['clean'], function() {
-  gulp.src('dist/index.html')
-    .pipe(minifyhtml())
-    .pipe(gulp.dest(paths.dist))
-    .on('error', gutil.log);
-});
-
 gulp.task('lint', function() {
-  gulp.src(paths.app)
+  return gulp.src(paths.app)
     .pipe(tslint())
     .pipe(tslint.report('prose', {emitError: true}));
 });
 
 gulp.task('html', function(){
-  gulp.src('src/*.html')
+  return gulp.src('src/*.html')
+    .pipe(gulp.dest(paths.dist))
     .pipe(connect.reload())
     .on('error', gutil.log);
 });
 
 gulp.task('connect', function () {
   connect.server({
-    root: [__dirname + '/src'],
+    root: [__dirname + '/build'],
     port: 9000,
     livereload: true
   });
 });
 
 gulp.task('watch', function () {
-  gulp.watch(paths.js, ['lint']);
+  gulp.watch(paths.app, ['compile']);
   gulp.watch(['./src/index.html', paths.css, paths.app], ['html']);
 });
 
-gulp.task('default', ['connect', 'watch']);
-gulp.task('build', ['copy', 'compile', 'minifycss', 'processhtml', 'minifyhtml']);
+gulp.task('default', function() {
+  runSequence('build',
+    ['connect', 'watch']);
+});
+
+gulp.task('build', 
+  runSequence('clean', 
+    ['copy', 'compile', 'sources', 'minifycss', 'processhtml']));
 

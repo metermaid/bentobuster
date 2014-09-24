@@ -6,8 +6,8 @@ module RitaConsumesTheUniverse.State
 
     create()
     {
-      this.stage.backgroundColor = 0x000000;
-      this.background = this.add.sprite(0, 0, 'tos');
+      this.stage.backgroundColor = 0xff0000;
+      this.background = this.add.sprite(0, 0, 'cherry');
       this.input.onDown.addOnce(() =>
       {
         this.game.state.start('main');

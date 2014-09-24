@@ -4,7 +4,7 @@ module RitaConsumesTheUniverse.State
   {
     preload()
     {
-      this.load.image('preload-bar', 'assets/preloader.gif');
+      this.load.image('preload-bar', 'assets/images/preloader.gif');
     }
 
     create()
