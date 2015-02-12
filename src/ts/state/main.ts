@@ -1,57 +1,82 @@
+/// <reference path="../prefab/tile.ts" />
+
 module RitaConsumesTheUniverse.State
 {
   export class Main extends Phaser.State
   {
+   private numTiles: number = 8;
+   private tiles: Prefab.Tile[][];
+   private bentoArea;
+   private buster;
+   private music;
 
-   private tileSize: number;
-   private numTiles: number;
-   private tileTypes: string[];
-   private tiles: Phaser.Sprite[][];
     create()
     {
       this.stage.backgroundColor = 0x000000;
-      
-      this.tileSize = 60;
-      this.numTiles = 8;
+      this.buster = this.add.sprite(500, 0, 'buster');
+      this.bentoArea = this.add.graphics(0, 0);
+      this.bentoArea.beginFill(0x7F1F1F, 1);
+      this.bentoArea.boundsPadding = 0;
+      this.bentoArea.drawRect(0, 0, 480, 480);
+
+      this.music = [];
+      this.music.push(this.add.audio('one'));
+      this.music.push(this.add.audio('two'));
+      this.music.push(this.add.audio('three'));
+      this.music.push(this.add.audio('four'));
+      this.music.push(this.add.audio('five'));
+      this.music.push(this.add.audio('six'));
+
       this.tiles = [];
-      this.tileTypes = ['sashimi','tempura','gyoza','nigiri','rolls', 'miso'];
 
       for (var i=0;i<this.numTiles;i++)
       {
          this.tiles[i] = new Array(this.numTiles);
          for (var j=0;j<this.numTiles;j++)
          {
-            var tile = this.add.sprite(j*this.tileSize,i*this.tileSize, this.randomTile());
-            tile.scale.set(0.1 , 0.1 );
+            var tile = new Prefab.Tile(this.game,j,i, Prefab.Tile.randomTile());
 
             this.tiles[i][j] = tile;
          }
       }
       this.input.onDown.add(this.clickTile, this);
     }
+
     clickTile()
     {
-      var selectedRow = this.findRoworColumn(this.input.worldY);
-      var selectedColumn = this.findRoworColumn(this.input.worldX);
-      this.floodFill(selectedRow, selectedColumn, this.tiles[selectedRow][selectedColumn].key);
+      this.buster.frame = 1;
+      var numClicked = 1;
+      var selectedRow = Prefab.Tile.findRoworColumn(this.input.worldY);
+      var selectedColumn = Prefab.Tile.findRoworColumn(this.input.worldX);
+      var numClicked = 1 + this.floodFill(selectedRow, selectedColumn, this.tiles[selectedRow][selectedColumn].key);
       this.fallDown();
       this.newTiles();
+      //this.buster.frame = 0;
+
+      if (numClicked <= 5)
+        this.music[numClicked-1].play();
+      else
+        this.music[5].play();
     }
+
     floodFill(row:number,col:number,key:string)
     {
+      var num = 0;
       if ((row >= 0 && row < this.numTiles) &&
           (col >= 0 && col < this.numTiles))
       {
          if (this.tiles[row][col] != null && this.tiles[row][col].key == key)
-         {
+         {  
             this.tiles[row][col].destroy();
             this.tiles[row][col]=null;
-            this.floodFill(row+1, col, key);
-            this.floodFill(row-1, col, key);
-            this.floodFill(row, col+1, key);
+            num += 1 +
+            this.floodFill(row+1, col, key) + 
+            this.floodFill(row-1, col, key) + 
+            this.floodFill(row, col+1, key) +
             this.floodFill(row, col-1, key);
          }
       }
+      return num;
     }
     fallDown()
     {
@@ -62,8 +87,8 @@ module RitaConsumesTheUniverse.State
             {
                var delta = this.findHoles(i,j);
                if (delta > 0) {
-                  var tileTween = this.add.tween(this.tiles[i][j]);
-                  tileTween.to({y: (i+delta)*this.tileSize},800,Phaser.Easing.Cubic.Out,true);
+                  this.tiles[i][j].tweenDown(i+delta);
+
                   this.tiles[i+delta][j] = this.tiles[i][j];
                   this.tiles[i][j] = null;
                }
@@ -77,21 +102,12 @@ module RitaConsumesTheUniverse.State
          var holes = this.findHoles(-1,i);
          for (var j = 0; j < holes; j++)
          {
-               var tileXPos = i*this.tileSize;
-               var tileYPos = (j-holes-1)*this.tileSize;
-               var tile = this.add.sprite(tileXPos,tileYPos,this.randomTile());
-               tile.scale.set(0.1 , 0.1 );
-               this.tiles[j][i] = tile;      
-               var tileTween = this.add.tween(this.tiles[j][i]);
-               tileTween.to({
-                  y: j*this.tileSize
-               },800,Phaser.Easing.Cubic.Out,true);
+           var tile = new Prefab.Tile(this.game,i,j-holes-1,Prefab.Tile.randomTile());
+
+           this.tiles[j][i] = tile;    
+           this.tiles[j][i].tweenDown(j);
          }
       }
-    }
-    randomTile()
-    {
-      return this.tileTypes[Math.floor(Math.random()*this.tileTypes.length)];
     }
     findHoles(row:number, col:number)
     {
@@ -102,10 +118,6 @@ module RitaConsumesTheUniverse.State
             holes++;
       }
       return holes;
-    }
-    findRoworColumn(input:number)
-    {
-      return Math.floor(input/this.tileSize);
     }
   }
 }
