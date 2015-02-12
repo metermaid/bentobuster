@@ -10,10 +10,11 @@ module RitaConsumesTheUniverse.State
     create()
     {
       this.stage.backgroundColor = 0x000000;
-      this.tileSize = 64;
+      
+      this.tileSize = 60;
       this.numTiles = 8;
       this.tiles = [];
-      this.tileTypes = ['cherry','hay','rock','spaghetti','steak'];
+      this.tileTypes = ['sashimi','tempura','gyoza','nigiri','rolls', 'miso'];
 
       for (var i=0;i<this.numTiles;i++)
       {
@@ -21,6 +22,8 @@ module RitaConsumesTheUniverse.State
          for (var j=0;j<this.numTiles;j++)
          {
             var tile = this.add.sprite(j*this.tileSize,i*this.tileSize, this.randomTile());
+            tile.scale.set(0.1 , 0.1 );
+
             this.tiles[i][j] = tile;
          }
       }
@@ -77,6 +80,7 @@ module RitaConsumesTheUniverse.State
                var tileXPos = i*this.tileSize;
                var tileYPos = (j-holes-1)*this.tileSize;
                var tile = this.add.sprite(tileXPos,tileYPos,this.randomTile());
+               tile.scale.set(0.1 , 0.1 );
                this.tiles[j][i] = tile;      
                var tileTween = this.add.tween(this.tiles[j][i]);
                tileTween.to({
