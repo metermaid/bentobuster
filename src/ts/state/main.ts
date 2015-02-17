@@ -9,6 +9,10 @@ module RitaConsumesTheUniverse.State
    private bentoArea;
    private buster;
    private music;
+   score: number = 0;
+   private scoreDisplay;
+   hungerBar;
+   happinessBar;
 
     create()
     {
@@ -27,6 +31,9 @@ module RitaConsumesTheUniverse.State
       this.music.push(this.add.audio('five'));
       this.music.push(this.add.audio('six'));
 
+      this.hungerBar = new Prefab.Bar(this.game, 500, 310);
+      this.happinessBar = new Prefab.Bar(this.game, 500, 350);
+
       this.tiles = [];
 
       for (var i=0;i<this.numTiles;i++)
@@ -39,24 +46,36 @@ module RitaConsumesTheUniverse.State
             this.tiles[i][j] = tile;
          }
       }
+
+      this.scoreDisplay = this.game.add.text(500, 380, "Score: " + this.score, { font: "65px Arial", fill: "#ffffff", align: "center" });
       this.input.onDown.add(this.clickTile, this);
+      this.game.time.events.loop(250, this.hungerBar.increment, this.hungerBar);
+      this.game.time.events.loop(500, this.happinessBar.increment, this.happinessBar);
+    }
+
+    update()
+    {
+      this.scoreDisplay.setText("Score: " + this.score);      
     }
 
     clickTile()
     {
-      this.buster.frame = 1;
       var numClicked = 1;
       var selectedRow = Prefab.Tile.findRoworColumn(this.input.worldY);
       var selectedColumn = Prefab.Tile.findRoworColumn(this.input.worldX);
-      var numClicked = 1 + this.floodFill(selectedRow, selectedColumn, this.tiles[selectedRow][selectedColumn].key);
+      var clickedTile = this.tiles[selectedRow][selectedColumn];
+      var typeData = Prefab.Food.data[Prefab.FoodEnum[<number>clickedTile.food]];
+      var numClicked = 1 + this.floodFill(selectedRow, selectedColumn, clickedTile.key);
       this.fallDown();
       this.newTiles();
-      //this.buster.frame = 0;
 
       if (numClicked <= 5)
         this.music[numClicked-1].play();
       else
         this.music[5].play();
+      this.score += numClicked * typeData.hunger + numClicked * typeData.happiness;
+      this.hungerBar.increment(numClicked * typeData.hunger);
+      this.happinessBar.increment(numClicked * typeData.happiness);
     }
 
     floodFill(row:number,col:number,key:string)

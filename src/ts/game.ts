@@ -11,7 +11,7 @@ module RitaConsumesTheUniverse
   {
     constructor()
     {
-      super(850, 480, Phaser.AUTO, 'game-content');
+      super(900, 500, Phaser.AUTO, 'game-content');
 
       this.state.add('boot', State.Boot);
       this.state.add('preload', State.Preload);
