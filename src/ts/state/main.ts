@@ -4,24 +4,30 @@ module RitaConsumesTheUniverse.State
 {
   export class Main extends Phaser.State
   {
-   private numTiles: number = 8;
+   private tilesX: number = 11;
+   private tilesY: number = 8;
    private tiles: Prefab.Tile[][];
    private bentoArea;
    private buster;
    private music;
+   private labelFont = { font: "16px \"Lucida Sans Unicode\", \"Lucida Grande\", sans-serif", fill: "#ffffff", align: "center" };
    score: number = 0;
    private scoreDisplay;
+   level: number = 1;
+   private levelDisplay;
    hungerBar;
    happinessBar;
+   hungerLoop;
+   happinessLoop;
 
     create()
     {
       this.stage.backgroundColor = 0x000000;
-      this.buster = this.add.sprite(500, 0, 'buster');
+      this.buster = this.add.sprite(660, 0, 'buster');
       this.bentoArea = this.add.graphics(0, 0);
       this.bentoArea.beginFill(0x7F1F1F, 1);
       this.bentoArea.boundsPadding = 0;
-      this.bentoArea.drawRect(0, 0, 480, 480);
+      this.bentoArea.drawRect(0, 0, 660, 480);
 
       this.music = [];
       this.music.push(this.add.audio('one'));
@@ -31,15 +37,17 @@ module RitaConsumesTheUniverse.State
       this.music.push(this.add.audio('five'));
       this.music.push(this.add.audio('six'));
 
-      this.hungerBar = new Prefab.Bar(this.game, 500, 310);
-      this.happinessBar = new Prefab.Bar(this.game, 500, 350);
+      this.game.add.text(660, 300, "Hunger", this.labelFont);
+      this.hungerBar = new Prefab.Bar(this.game, 660, 335);
+      this.game.add.text(660, 360, "Happiness", this.labelFont);
+      this.happinessBar = new Prefab.Bar(this.game, 660, 395);
 
       this.tiles = [];
 
-      for (var i=0;i<this.numTiles;i++)
+      for (var i=0;i<this.tilesY;i++)
       {
-         this.tiles[i] = new Array(this.numTiles);
-         for (var j=0;j<this.numTiles;j++)
+         this.tiles[i] = new Array(this.tilesX);
+         for (var j=0;j<this.tilesX;j++)
          {
             var tile = new Prefab.Tile(this.game,j,i, Prefab.Tile.randomTile());
 
@@ -47,42 +55,53 @@ module RitaConsumesTheUniverse.State
          }
       }
 
-      this.scoreDisplay = this.game.add.text(500, 380, "Score: " + this.score, { font: "65px Arial", fill: "#ffffff", align: "center" });
+      this.levelDisplay = this.game.add.text(660, 420, "Level: " + this.level, this.labelFont);
+      this.scoreDisplay = this.game.add.text(660, 440, "Score: " + this.score, this.labelFont);
       this.input.onDown.add(this.clickTile, this);
-      this.game.time.events.loop(250, this.hungerBar.increment, this.hungerBar);
-      this.game.time.events.loop(500, this.happinessBar.increment, this.happinessBar);
+      this.hungerLoop = this.game.time.events.loop(250, this.hungerBar.increment, this.hungerBar);
+      this.happinessLoop = this.game.time.events.loop(500, this.happinessBar.increment, this.happinessBar);
     }
 
     update()
     {
-      this.scoreDisplay.setText("Score: " + this.score);      
+      if (this.score > 5000)
+      {
+        this.level = (this.score - (this.score % 5000))/5000; 
+        this.levelDisplay.setText("Level: " + this.level); 
+        this.hungerLoop.delay = 250 / Math.log(this.level); 
+        this.happinessLoop.delay = 500 / Math.log(this.level); 
+      }
+      this.scoreDisplay.setText("Score: " + this.score);   
     }
 
     clickTile()
     {
-      var numClicked = 1;
       var selectedRow = Prefab.Tile.findRoworColumn(this.input.worldY);
       var selectedColumn = Prefab.Tile.findRoworColumn(this.input.worldX);
       var clickedTile = this.tiles[selectedRow][selectedColumn];
-      var typeData = Prefab.Food.data[Prefab.FoodEnum[<number>clickedTile.food]];
-      var numClicked = 1 + this.floodFill(selectedRow, selectedColumn, clickedTile.key);
-      this.fallDown();
-      this.newTiles();
+      if (clickedTile)
+      {
+        var numClicked = 1;
+        var typeData = Prefab.Food.data[Prefab.FoodEnum[<number>clickedTile.food]];
+        var numClicked = 1 + this.floodFill(selectedRow, selectedColumn, clickedTile.key);
+        this.fallDown();
+        this.newTiles();
 
-      if (numClicked <= 5)
-        this.music[numClicked-1].play();
-      else
-        this.music[5].play();
-      this.score += numClicked * typeData.hunger + numClicked * typeData.happiness;
-      this.hungerBar.increment(numClicked * typeData.hunger);
-      this.happinessBar.increment(numClicked * typeData.happiness);
+        if (numClicked <= 5)
+          this.music[numClicked-1].play();
+        else
+          this.music[5].play();
+        this.score += numClicked * typeData.happiness * 10;
+        this.hungerBar.increment(numClicked * typeData.hunger);
+        this.happinessBar.increment(numClicked * typeData.happiness);
+      }
     }
 
     floodFill(row:number,col:number,key:string)
     {
       var num = 0;
-      if ((row >= 0 && row < this.numTiles) &&
-          (col >= 0 && col < this.numTiles))
+      if ((row >= 0 && row < this.tilesY) &&
+          (col >= 0 && col < this.tilesX))
       {
          if (this.tiles[row][col] != null && this.tiles[row][col].key == key)
          {  
@@ -99,8 +118,8 @@ module RitaConsumesTheUniverse.State
     }
     fallDown()
     {
-      for (var i = this.numTiles - 1; i >= 0; i--)
-         for (var j = 0; j < this.numTiles; j++)
+      for (var i = this.tilesY - 1; i >= 0; i--)
+         for (var j = 0; j < this.tilesX; j++)
          {
             if (this.tiles[i][j] != null)
             {
@@ -116,7 +135,7 @@ module RitaConsumesTheUniverse.State
     }
     newTiles()
     {
-      for (var i = 0; i < this.numTiles; i++)
+      for (var i = 0; i < this.tilesX; i++)
       {
          var holes = this.findHoles(-1,i);
          for (var j = 0; j < holes; j++)
@@ -131,7 +150,7 @@ module RitaConsumesTheUniverse.State
     findHoles(row:number, col:number)
     {
       var holes = 0;
-      for (var i = row+1; i< this.numTiles; i++)
+      for (var i = row+1; i< this.tilesY; i++)
       {
          if (this.tiles[i][col]==null)
             holes++;

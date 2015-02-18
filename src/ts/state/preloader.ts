@@ -32,7 +32,7 @@ module RitaConsumesTheUniverse.State
 
     create()
     {
-      this.game.state.start('menu');
+      this.game.state.start('main');
     }
   }
 }
