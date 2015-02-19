@@ -1,28 +1,28 @@
 module RitaConsumesTheUniverse.Prefab
 {
 
-  export class Board
+  export class Board extends Phaser.GameObjectFactory
   {
+    private offsetX: number = 5;
+    private offsetY: number = 10;
     private tilesX: number = 11;
     private tilesY: number = 8;
     private tiles: Prefab.Tile[][];
     private bentoArea;
     private music;
 
-    constructor(public game: Phaser.Game, public state: RitaConsumesTheUniverse.State.Main)
+    constructor(game: Phaser.Game, public state: RitaConsumesTheUniverse.State.Main)
     {
+      super(game);
+
       this.bentoArea = this.state.add.graphics(0, 0);
       this.bentoArea.beginFill(0x7F1F1F, 1);
       this.bentoArea.boundsPadding = 0;
-      this.bentoArea.drawRect(0, 0, 660, 480);
+      this.bentoArea.drawRect(0, 0, 670, 500);
 
       this.music = [];
-      this.music.push(this.state.add.audio('one'));
-      this.music.push(this.state.add.audio('two'));
-      this.music.push(this.state.add.audio('three'));
-      this.music.push(this.state.add.audio('four'));
-      this.music.push(this.state.add.audio('five'));
-      this.music.push(this.state.add.audio('six'));
+      for (var i=1;i<=6;i++)
+        this.music.push(this.state.add.audio('effect' + i));
 
       this.tiles = [];
 
@@ -31,8 +31,7 @@ module RitaConsumesTheUniverse.Prefab
          this.tiles[i] = new Array(this.tilesX);
          for (var j=0;j<this.tilesX;j++)
          {
-            var tile = new Prefab.Tile(this.game,j,i, Prefab.Tile.randomTile());
-
+            var tile = new Prefab.Tile(this.game, j, i, this.offsetX, this.offsetY, Prefab.Tile.randomTile(this.state.level));
             this.tiles[i][j] = tile;
          }
       }
@@ -40,8 +39,8 @@ module RitaConsumesTheUniverse.Prefab
 
     clickTile()
     {
-      var selectedRow = Prefab.Tile.findRoworColumn(this.game.input.worldY);
-      var selectedColumn = Prefab.Tile.findRoworColumn(this.game.input.worldX);
+      var selectedRow = Prefab.Tile.findRoworColumn(this.game.input.worldY-this.offsetY);
+      var selectedColumn = Prefab.Tile.findRoworColumn(this.game.input.worldX-this.offsetX);
       var clickedTile = this.tiles[selectedRow][selectedColumn];
       if (clickedTile)
       {
@@ -55,9 +54,8 @@ module RitaConsumesTheUniverse.Prefab
           this.music[numClicked-1].play();
         else
           this.music[5].play();
-        this.state.score += numClicked * typeData.happiness * 10;
-        this.state.hungerBar.increment(numClicked * typeData.hunger);
-        this.state.happinessBar.increment(numClicked * typeData.happiness);
+
+        this.state.addScore(numClicked, typeData);
       }
     }
 
@@ -89,7 +87,7 @@ module RitaConsumesTheUniverse.Prefab
             {
                var delta = this.findHoles(i,j);
                if (delta > 0) {
-                  this.tiles[i][j].tweenDown(i+delta);
+                  this.tiles[i][j].tweenDown(i+delta, this.offsetY);
 
                   this.tiles[i+delta][j] = this.tiles[i][j];
                   this.tiles[i][j] = null;
@@ -104,10 +102,10 @@ module RitaConsumesTheUniverse.Prefab
          var holes = this.findHoles(-1,i);
          for (var j = 0; j < holes; j++)
          {
-           var tile = new Prefab.Tile(this.game,i,j-holes-1,Prefab.Tile.randomTile());
+           var tile = new Prefab.Tile(this.game, i, j-holes-1, this.offsetX, this.offsetY, Prefab.Tile.randomTile(this.state.level));
 
            this.tiles[j][i] = tile;    
-           this.tiles[j][i].tweenDown(j);
+           this.tiles[j][i].tweenDown(j, this.offsetY);
          }
       }
     }
@@ -120,6 +118,23 @@ module RitaConsumesTheUniverse.Prefab
             holes++;
       }
       return holes;
+    }
+    destroy()
+    {
+      this.music.forEach(function(file) {
+        file.destroy;
+      });
+      this.music.length = 0;
+
+      for (var i=0;i<this.tilesY;i++)
+      {
+         for (var j=0;j<this.tilesX;j++)
+         {
+            this.tiles[i][j].destroy;
+         }
+         this.tiles[i].length = 0;
+      }
+      this.tiles.length = 0;
     }
   }
 }

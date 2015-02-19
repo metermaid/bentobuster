@@ -14,16 +14,22 @@ module RitaConsumesTheUniverse.State
 
 
       this.music = this.add.audio('menumusic');
-   //   this.music.loop = true;
-//      this.music.play();
+      this.music.loop = true;
+      this.music.play();
 
-      this.title = this.add.text(10, 10, 'BENTO BUSTER',
-        { font: 'bold 72px Roboto, Helvetica', fill: 'white'});
+      this.title = this.add.text(10, 10, 'Bento Buster.',
+        { font: 'bold 100px Roboto, Helvetica', fill: 'white'});
+
+      this.add.text(10, 100, "Buster loves sushi. Click sushi to feed him.\nItems with more pieces make him less hungry,\nand items closer to red in the rainbow make him happier.\nDon\'t let him get hungry or unhappy.", { font: 'bold 24px Helvetica', fill: 'white'});
 
       this.input.onDown.addOnce(() =>
       {
         this.game.state.start('main');
       });
+    }
+    shutdown()
+    {
+      this.music.destroy();
     }
   }
 }

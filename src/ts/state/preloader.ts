@@ -20,19 +20,19 @@ module RitaConsumesTheUniverse.State
       this.load.image('Miso', 'assets/images/thumbnails/miso.png');
 
       this.load.audio('menumusic', ['assets/sounds/menu.mp3', 'assets/sounds/menu.ogg']);
-      this.load.audio('one', ['assets/sounds/one.mp3', 'assets/sounds/one.ogg']);
-      this.load.audio('two', ['assets/sounds/two.mp3', 'assets/sounds/two.ogg']);
-      this.load.audio('three', ['assets/sounds/three.mp3', 'assets/sounds/three.ogg']);
-      this.load.audio('four', ['assets/sounds/four.mp3', 'assets/sounds/four.ogg']);
-      this.load.audio('five', ['assets/sounds/five.mp3', 'assets/sounds/five.ogg']);
-      this.load.audio('six', ['assets/sounds/six.mp3', 'assets/sounds/six.ogg']);
+      this.load.audio('effect1', ['assets/sounds/one.mp3', 'assets/sounds/one.ogg']);
+      this.load.audio('effect2', ['assets/sounds/two.mp3', 'assets/sounds/two.ogg']);
+      this.load.audio('effect3', ['assets/sounds/three.mp3', 'assets/sounds/three.ogg']);
+      this.load.audio('effect4', ['assets/sounds/four.mp3', 'assets/sounds/four.ogg']);
+      this.load.audio('effect5', ['assets/sounds/five.mp3', 'assets/sounds/five.ogg']);
+      this.load.audio('effect6', ['assets/sounds/six.mp3', 'assets/sounds/six.ogg']);
 
       // Load remaining assets here
     }
 
     create()
     {
-      this.game.state.start('main');
+      this.game.state.start('menu');
     }
   }
 }

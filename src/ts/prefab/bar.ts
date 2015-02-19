@@ -9,7 +9,7 @@ module RitaConsumesTheUniverse.Prefab
     _last: number = 100.0;
     max: number = 100.0;
 
-    constructor(game: Phaser.Game, x: number, y: number, width: number = 225, current: number = 100)
+    constructor(game: Phaser.Game, x: number, y: number, width: number = 200, current: number = 100)
     {
       super(game, x, y);
       this.barWidth = width;
@@ -25,7 +25,7 @@ module RitaConsumesTheUniverse.Prefab
     }
 
     increment(amount: number = -1) {
-      if (0 < this.current + amount && this.current + amount < 100)
+      if (0 <= this.current + amount && this.current + amount <= 100)
         this.current += amount;
     }
 

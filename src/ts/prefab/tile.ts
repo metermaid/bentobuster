@@ -15,9 +15,9 @@ module RitaConsumesTheUniverse.Prefab
     food:Food;
     static tileSize = 60;
 
-    constructor(game: Phaser.Game, x: number, y: number, food)
+    constructor(game: Phaser.Game, x: number, y: number, offsetX: number, offsetY: number, food)
     {
-      super(game, x*Tile.tileSize, y*Tile.tileSize, food, 0);
+      super(game, x*Tile.tileSize + offsetX, y*Tile.tileSize + offsetY, food, 0);
       this.food = food;
       game.add.existing(this);
     }
@@ -26,17 +26,24 @@ module RitaConsumesTheUniverse.Prefab
     {
     }
 
-    tweenDown(y: number)
+    tweenDown(y: number, offsetY: number)
     {
       var tileTween = this.game.add.tween(this);
       tileTween.to({
-        y: y*Tile.tileSize
+        y: y*Tile.tileSize+offsetY
       },800,Phaser.Easing.Cubic.Out,true);
     }
 
-    static randomTile(scope?: string)
+    static randomTile(level: number)
     {
-      return FoodEnum[Math.floor(Math.random() * (Object.keys(FoodEnum).length)/2)]; // added twice
+      if (level == 1)
+        return FoodEnum[Math.floor(Math.random() * 3)];
+      else if (level < 3)
+        return FoodEnum[Math.floor(Math.random() * 4)];
+      else if (level < 5)
+        return FoodEnum[Math.floor(Math.random() * 5)];
+      else
+        return FoodEnum[Math.floor(Math.random() * 6)]; // added twice
     }
 
     static findRoworColumn(input:number)
