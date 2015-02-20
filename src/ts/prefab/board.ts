@@ -3,10 +3,10 @@ module RitaConsumesTheUniverse.Prefab
 
   export class Board extends Phaser.GameObjectFactory
   {
-    private offsetX: number = 5;
-    private offsetY: number = 10;
-    private tilesX: number = 11;
-    private tilesY: number = 8;
+    private offsetX: number = 0;
+    private offsetY: number = 0;
+    private tilesX: number = 8;
+    private tilesY: number = 6;
     private tiles: Prefab.Tile[][];
     private bentoArea;
     private music;
@@ -16,9 +16,9 @@ module RitaConsumesTheUniverse.Prefab
       super(game);
 
       this.bentoArea = this.state.add.graphics(0, 0);
-      this.bentoArea.beginFill(0x7F1F1F, 1);
+      this.bentoArea.beginFill(0x000000, 1);
       this.bentoArea.boundsPadding = 0;
-      this.bentoArea.drawRect(0, 0, 670, 500);
+      this.bentoArea.drawRect(0, 0, 640, 500);
 
       this.music = [];
       for (var i=1;i<=6;i++)
@@ -46,7 +46,7 @@ module RitaConsumesTheUniverse.Prefab
       {
         var numClicked = 1;
         var typeData = Prefab.Food.data[Prefab.FoodEnum[<number>clickedTile.food]];
-        var numClicked = 1 + this.floodFill(selectedRow, selectedColumn, clickedTile.key);
+        var numClicked = 1 + this.floodFill(selectedRow, selectedColumn, clickedTile.food);
         this.fallDown();
         this.newTiles();
 
@@ -59,21 +59,21 @@ module RitaConsumesTheUniverse.Prefab
       }
     }
 
-    floodFill(row:number,col:number,key:string)
+    floodFill(row:number,col:number,food)
     {
       var num = 0;
       if ((row >= 0 && row < this.tilesY) &&
           (col >= 0 && col < this.tilesX))
       {
-         if (this.tiles[row][col] != null && this.tiles[row][col].key == key)
+         if (this.tiles[row][col] != null && this.tiles[row][col].food == food)
          {  
             this.tiles[row][col].destroy();
             this.tiles[row][col]=null;
             num += 1 +
-            this.floodFill(row+1, col, key) + 
-            this.floodFill(row-1, col, key) + 
-            this.floodFill(row, col+1, key) +
-            this.floodFill(row, col-1, key);
+            this.floodFill(row+1, col, food) + 
+            this.floodFill(row-1, col, food) + 
+            this.floodFill(row, col+1, food) +
+            this.floodFill(row, col-1, food);
          }
       }
       return num;
@@ -122,7 +122,7 @@ module RitaConsumesTheUniverse.Prefab
     destroy()
     {
       this.music.forEach(function(file) {
-        file.destroy;
+        file.destroy();
       });
       this.music.length = 0;
 
@@ -130,11 +130,13 @@ module RitaConsumesTheUniverse.Prefab
       {
          for (var j=0;j<this.tilesX;j++)
          {
-            this.tiles[i][j].destroy;
+            this.tiles[i][j].destroy();
          }
          this.tiles[i].length = 0;
       }
       this.tiles.length = 0;
+
+      this.bentoArea.destroy();
     }
   }
 }

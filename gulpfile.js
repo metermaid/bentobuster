@@ -17,10 +17,12 @@ paths = {
   assets: 'src/assets/**/*',
   css:    'src/css/*.css', 
   sources:   [
-    'src/bower_components/phaser-official/build/phaser.min.js'
+    'src/bower_components/phaser-official/build/phaser.js'
   ],
   libs:   [
-    'src/bower_components/phaser-official/build/phaser.d.ts'
+    'src/bower_components/phaser-official/typescript/phaser.d.ts',
+    'src/bower_components/phaser-official/typescript/pixi.d.ts'
+
   ],
   app:     ['src/ts/**/*.ts'],
   dist:   'build/'

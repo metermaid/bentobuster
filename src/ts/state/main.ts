@@ -5,7 +5,7 @@ module RitaConsumesTheUniverse.State
   export class Main extends Phaser.State
   {
    private buster;
-   private labelFont = { font: "16px \"Lucida Sans Unicode\", \"Lucida Grande\", sans-serif", fill: "#ffffff", align: "center" };
+   private labelFont = { font: "16px \"Lucida Sans Unicode\", \"Lucida Grande\", sans-serif", fill: "#000000", align: "center" };
    private scoreDisplay;
    private levelDisplay;
    private board;
@@ -20,18 +20,18 @@ module RitaConsumesTheUniverse.State
 
     create()
     {
-      this.stage.backgroundColor = 0x000000;
-      this.buster = this.add.sprite(680, 0, 'buster');
+      this.stage.backgroundColor = 0xFAE2AE;
+      this.buster = this.add.sprite(660, 0, 'buster');
 
       this.board = new Prefab.Board(this.game, this);
 
-      this.hungerLabel = this.add.text(680, 300, "Hunger", this.labelFont);
-      this.hungerBar = new Prefab.Bar(this.game, 680, 335);
-      this.happinessLabel = this.add.text(680, 360, "Happiness", this.labelFont);
-      this.happinessBar = new Prefab.Bar(this.game, 680, 395);
+      this.hungerLabel = this.add.text(660, 300, "Hunger", this.labelFont);
+      this.hungerBar = new Prefab.Bar(this.game, 660, 335);
+      this.happinessLabel = this.add.text(660, 360, "Happiness", this.labelFont);
+      this.happinessBar = new Prefab.Bar(this.game, 660, 395);
 
-      this.levelDisplay = this.add.text(680, 420, "Level: " + this.level, this.labelFont);
-      this.scoreDisplay = this.add.text(680, 440, "Score: " + this.score, this.labelFont);
+      this.levelDisplay = this.add.text(660, 420, "Level: " + this.level, this.labelFont);
+      this.scoreDisplay = this.add.text(660, 440, "Score: " + this.score, this.labelFont);
 
       this.input.onDown.add(this.board.clickTile, this.board);
 
@@ -42,7 +42,7 @@ module RitaConsumesTheUniverse.State
     update()
     {
       if (this.hungerBar.current <= 0 || this.happinessBar.current <= 0)
-        this.game.state.start('menu');
+        this.game.state.start('menu', true);
     }
 
     addScore(numClicked: number, typeData)
@@ -71,6 +71,8 @@ module RitaConsumesTheUniverse.State
     shutdown()
     {
       this.board.destroy();
+      this.level = 1;
+      this.score = 0;
     }
   }
 }

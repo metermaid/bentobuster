@@ -10,16 +10,32 @@ module RitaConsumesTheUniverse.Prefab
                       {hunger:1,happiness:1}];
   }
 
-  export class Tile extends Phaser.Sprite
+  export class Tile extends Phaser.Group
   {
     food:Food;
-    static tileSize = 60;
+    sprite:Phaser.Sprite;
+    static tileSize = 80;
 
     constructor(game: Phaser.Game, x: number, y: number, offsetX: number, offsetY: number, food)
     {
-      super(game, x*Tile.tileSize + offsetX, y*Tile.tileSize + offsetY, food, 0);
+      super(game);
+      this.x = x*Tile.tileSize + offsetX;
+      this.y = y*Tile.tileSize + offsetY;
+      var bg = game.add.graphics(0, 0);
+      bg.boundsPadding = 0;
+      bg.beginFill(0x561515, 1);
+      bg.drawRoundedRect(0, 0, 70, 70, 10);
+      bg.endFill();
+      var bg2 = game.add.graphics(5, 5);
+      bg2.boundsPadding = 0;
+      bg2.beginFill(0x7F1F1F, 1);
+      bg2.drawRoundedRect(0, 0, 59, 59, 10);
+      bg2.endFill();
+      this.sprite = game.add.sprite(5, 5, food, 0);
       this.food = food;
-      game.add.existing(this);
+      this.add(bg);
+      this.add(bg2);
+      this.add(this.sprite);
     }
 
     update()
