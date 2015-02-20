@@ -6,7 +6,10 @@ module RitaConsumesTheUniverse.State
 
     preload()
     {
-      this.preloadBar = this.add.sprite(0, 148, 'preload-bar');
+
+      this.title = this.add.text(350, 100, 'Loading...',
+        { font: 'bold 72px Helvetica', fill: 'white'});
+      this.preloadBar = this.add.sprite(350, 200, 'preload-bar');
       this.load.setPreloadSprite(this.preloadBar);
 
       this.load.image('background', 'assets/images/background.png');
