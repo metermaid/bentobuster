@@ -39,6 +39,7 @@ module RitaConsumesTheUniverse.Prefab
 
     clickTile()
     {
+
       var selectedRow = Prefab.Tile.findRoworColumn(this.game.input.worldY-this.offsetY);
       var selectedColumn = Prefab.Tile.findRoworColumn(this.game.input.worldX-this.offsetX);
       var clickedTile = this.tiles[selectedRow][selectedColumn];
@@ -46,6 +47,7 @@ module RitaConsumesTheUniverse.Prefab
       {
         var numClicked = 1;
         var typeData = Prefab.Food.data[Prefab.FoodEnum[<number>clickedTile.food]];
+        
         var numClicked = 1 + this.floodFill(selectedRow, selectedColumn, clickedTile.food);
         this.fallDown();
         this.newTiles();
