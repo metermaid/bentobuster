@@ -22,6 +22,7 @@ module RitaConsumesTheUniverse.Prefab
 
       super(game, x*Tile.tileSize + offsetX, y*Tile.tileSize + offsetY, 'tiles', FoodEnum[food]);
       this.food = food;
+      this.inputEnabled = true;
       game.add.existing(this);
     }
 
@@ -35,6 +36,15 @@ module RitaConsumesTheUniverse.Prefab
       tileTween.to({
         y: y*Tile.tileSize+offsetY
       },800,Phaser.Easing.Cubic.Out,true);
+    }
+
+    selectTile()
+    {
+      if (!this.clicked)
+      {
+        this.clicked = true;
+        this.frame += 6;
+      }
     }
 
     static randomTile(level: number)

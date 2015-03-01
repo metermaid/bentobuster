@@ -15,7 +15,7 @@ module RitaConsumesTheUniverse.State
       this.load.image('background', 'assets/images/background.png');
       this.load.spritesheet('buster', 'assets/images/buster.png', 225,300,2);
 
-      this.load.spritesheet('tiles', 'assets/images/tiles.png',80,80,6);
+      this.load.spritesheet('tiles', 'assets/images/tiles.png',80,80,12);
 
       this.load.audio('menumusic', ['assets/sounds/menu.mp3', 'assets/sounds/menu.ogg']);
       this.load.audio('effect1', ['assets/sounds/one.mp3', 'assets/sounds/one.ogg']);

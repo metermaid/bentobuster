@@ -10,6 +10,8 @@ module RitaConsumesTheUniverse.Prefab
     private tiles: Prefab.Tile[][];
     private bentoArea;
     private music;
+    private activeTile;
+    private allowInput: boolean = false;
 
     constructor(game: Phaser.Game, public state: RitaConsumesTheUniverse.State.Main)
     {
@@ -33,53 +35,71 @@ module RitaConsumesTheUniverse.Prefab
          {
             var tile = new Prefab.Tile(this.game, j, i, this.offsetX, this.offsetY, Prefab.Tile.randomTile(this.state.level));
             this.tiles[i][j] = tile;
+            tile.events.onInputDown.add(this.selectTile, this);
          }
       }
     }
 
-    clickTile()
+    selectTile(tile, pointer)
     {
+      if (!this.activeTile)
+        this.activeTile = tile;
+    }
 
-      var selectedRow = Prefab.Tile.findRoworColumn(this.game.input.worldY-this.offsetY);
-      var selectedColumn = Prefab.Tile.findRoworColumn(this.game.input.worldX-this.offsetX);
-      var clickedTile = this.tiles[selectedRow][selectedColumn];
-      if (clickedTile)
+    adjacentTiles(tile1,tile2)
+    {
+      if (Math.abs(tile1.x - tile2.x) <= Prefab.Tile.tileSize && Math.abs(tile1.x - tile2.x) <= Prefab.Tile.tileSize)
+        return true;
+      else
+        return false;
+    }
+
+    matchTiles()
+    {
+      if (this.activeTile)
       {
-        var numClicked = 1;
-        var typeData = Prefab.Food.data[Prefab.FoodEnum[<number>clickedTile.food]];
-        
-        var numClicked = 1 + this.floodFill(selectedRow, selectedColumn, clickedTile.food);
-        this.fallDown();
-        this.newTiles();
-
-        if (numClicked <= 5)
-          this.music[numClicked-1].play();
-        else
-          this.music[5].play();
-
-        this.state.addScore(numClicked, typeData);
+        this.tiles.forEach ( (row,rownum) =>
+        {
+          row.forEach ( (tile,col) =>
+          {
+            if(tile.input.pointerOver(this.game.input.activePointer.id) && tile.food == this.activeTile.food && this.adjacentTiles(tile, this.activeTile))
+            {
+              tile.selectTile();
+              this.activeTile = tile;
+            }
+          });
+        });
       }
     }
 
-    floodFill(row:number,col:number,food)
+    clearTiles()
     {
-      var num = 0;
-      if ((row >= 0 && row < this.tilesY) &&
-          (col >= 0 && col < this.tilesX))
+      var numClicked = 0;
+      this.tiles.forEach ( (row) =>
       {
-         if (this.tiles[row][col] != null && this.tiles[row][col].food == food)
-         {  
-            this.tiles[row][col].destroy();
-            this.tiles[row][col]=null;
-            num += 1 +
-            this.floodFill(row+1, col, food) + 
-            this.floodFill(row-1, col, food) + 
-            this.floodFill(row, col+1, food) +
-            this.floodFill(row, col-1, food);
-         }
-      }
-      return num;
+        row.forEach ( (tile,col) =>
+        {
+          if (tile.clicked)
+          {
+            tile.destroy();
+            row[col]=null;
+            numClicked++;
+          }
+        });
+      });
+
+      this.fallDown();
+      this.newTiles();
+
+      if (numClicked <= 5)
+        this.music[numClicked-1].play();
+      else
+        this.music[5].play();
+
+      this.state.addScore(numClicked, Prefab.Food.data[Prefab.FoodEnum[<number>this.activeTile.food]]);
+      this.activeTile = null;
     }
+
     fallDown()
     {
       for (var i = this.tilesY - 1; i >= 0; i--)

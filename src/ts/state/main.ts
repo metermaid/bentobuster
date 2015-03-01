@@ -33,7 +33,7 @@ module RitaConsumesTheUniverse.State
       this.levelDisplay = this.add.text(660, 420, "Level: " + this.level, this.labelFont);
       this.scoreDisplay = this.add.text(660, 440, "Score: " + this.score, this.labelFont);
 
-      this.input.onDown.add(this.board.clickTile, this.board);
+      this.input.onUp.add(this.board.clearTiles, this.board);
 
       this.hungerLoop = this.time.events.loop(250, this.hungerBar.increment, this.hungerBar);
       this.happinessLoop = this.time.events.loop(500, this.happinessBar.increment, this.happinessBar);
@@ -43,6 +43,8 @@ module RitaConsumesTheUniverse.State
     {
       if (this.hungerBar.current <= 0 || this.happinessBar.current <= 0)
         this.game.state.start('menu', true);
+
+      this.board.matchTiles();
     }
 
     addScore(numClicked: number, typeData)
