@@ -48,7 +48,7 @@ module RitaConsumesTheUniverse.Prefab
 
     adjacentTiles(tile1,tile2)
     {
-      if (Math.abs(tile1.x - tile2.x) <= Prefab.Tile.tileSize && Math.abs(tile1.x - tile2.x) <= Prefab.Tile.tileSize)
+      if (Math.abs(tile1.x - tile2.x) <= Prefab.Tile.tileSize && Math.abs(tile1.y - tile2.y) <= Prefab.Tile.tileSize)
         return true;
       else
         return false;
@@ -58,9 +58,9 @@ module RitaConsumesTheUniverse.Prefab
     {
       if (this.activeTile)
       {
-        this.tiles.forEach ( (row,rownum) =>
+        this.tiles.forEach ( (row) =>
         {
-          row.forEach ( (tile,col) =>
+          row.forEach ( (tile) =>
           {
             if(tile.input.pointerOver(this.game.input.activePointer.id) && tile.food == this.activeTile.food && this.adjacentTiles(tile, this.activeTile))
             {
@@ -88,16 +88,19 @@ module RitaConsumesTheUniverse.Prefab
         });
       });
 
-      this.fallDown();
-      this.newTiles();
+      if (numClicked > 0)
+      {
+        this.fallDown();
+        this.newTiles();
 
-      if (numClicked <= 5)
-        this.music[numClicked-1].play();
-      else
-        this.music[5].play();
+        if (numClicked <= 5)
+          this.music[numClicked-1].play();
+        else
+          this.music[5].play();
 
-      this.state.addScore(numClicked, Prefab.Food.data[Prefab.FoodEnum[<number>this.activeTile.food]]);
-      this.activeTile = null;
+        this.state.addScore(numClicked, Prefab.Food.data[Prefab.FoodEnum[<number>this.activeTile.food]]);
+        this.activeTile = null;
+      }
     }
 
     fallDown()
@@ -125,6 +128,7 @@ module RitaConsumesTheUniverse.Prefab
          for (var j = 0; j < holes; j++)
          {
            var tile = new Prefab.Tile(this.game, i, j-holes-1, this.offsetX, this.offsetY, Prefab.Tile.randomTile(this.state.level()));
+           tile.events.onInputDown.add(this.selectTile, this);
 
            this.tiles[j][i] = tile;    
            this.tiles[j][i].tweenDown(j, this.offsetY);
