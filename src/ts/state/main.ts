@@ -26,7 +26,7 @@ module RitaConsumesTheUniverse.State
     update()
     {
       if (this.info.hungerBar.current <= 0 || this.info.happinessBar.current <= 0)
-        this.game.state.start('menu', true);
+        this.game.state.start('game_over', true);
 
       this.board.matchTiles();
     }

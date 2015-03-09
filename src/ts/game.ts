@@ -16,6 +16,7 @@ module RitaConsumesTheUniverse
       this.state.add('boot', State.Boot);
       this.state.add('preload', State.Preload);
       this.state.add('menu', State.Menu);
+      this.state.add('game_over', State.GameOver);
       this.state.add('main', State.Main);
 
       this.state.start('boot');
