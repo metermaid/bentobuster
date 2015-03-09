@@ -1,7 +1,7 @@
 /// <reference path="bower-components/phaser-official/build/phaser.d.ts"/>
 
 /// <reference path='state/boot.ts'/>
-/// <reference path='state/preloade.ts'/>
+/// <reference path='state/preloader.ts'/>
 /// <reference path='state/menu.ts'/>
 /// <reference path='state/main.ts'/>
 

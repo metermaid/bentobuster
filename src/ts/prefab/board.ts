@@ -33,7 +33,7 @@ module RitaConsumesTheUniverse.Prefab
          this.tiles[i] = new Array(this.tilesX);
          for (var j=0;j<this.tilesX;j++)
          {
-            var tile = new Prefab.Tile(this.game, j, i, this.offsetX, this.offsetY, Prefab.Tile.randomTile(this.state.level));
+            var tile = new Prefab.Tile(this.game, j, i, this.offsetX, this.offsetY, Prefab.Tile.randomTile(this.state.level()));
             this.tiles[i][j] = tile;
             tile.events.onInputDown.add(this.selectTile, this);
          }
@@ -124,7 +124,7 @@ module RitaConsumesTheUniverse.Prefab
          var holes = this.findHoles(-1,i);
          for (var j = 0; j < holes; j++)
          {
-           var tile = new Prefab.Tile(this.game, i, j-holes-1, this.offsetX, this.offsetY, Prefab.Tile.randomTile(this.state.level));
+           var tile = new Prefab.Tile(this.game, i, j-holes-1, this.offsetX, this.offsetY, Prefab.Tile.randomTile(this.state.level()));
 
            this.tiles[j][i] = tile;    
            this.tiles[j][i].tweenDown(j, this.offsetY);
@@ -143,7 +143,8 @@ module RitaConsumesTheUniverse.Prefab
     }
     destroy()
     {
-      this.music.forEach(function(file) {
+      this.music.forEach((file) =>
+      {
         file.destroy();
       });
       this.music.length = 0;
